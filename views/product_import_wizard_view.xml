@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="tnt_xls_import_form" model="ir.ui.view">
+        <field name="name">tnt.xls.import.form</field>
+        <field name="model">tnt.xls.import</field>
+        <field name="arch" type="xml">
+            <form string="Product XLS Import">
+                <group>
+                    <field name="xls_file" filename="xls_filename"/>
+                    <field name="xls_filename" invisible="1"/>
+                </group>
+                <field name="line_ids" nolabel="1">
+                    <tree editable="top">
+                        <field name="name"/>
+                        <field name="categ_id"/>
+                        <field name="brand_id"/>
+                        <field name="catalog_auto_model"/>
+                    </tree>
+                </field>
+                <footer>
+                    <button
+                            name="xls_import_button"
+                            type="object"
+                            class="oe_highlight"
+                            string="Import"
+                    />
+                    <button special="cancel" string="Cancel" class="oe_link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="xls_import_button_action" model="ir.actions.act_window">
+        <field name="name">Product XLS Import</field>
+        <field name="res_model">tnt.xls.import</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+            id="purchase_order_import_menu"
+            parent="purchase.menu_purchase_products"
+            action="xls_import_button_action"
+            sequence="30"
+    />
+</odoo>
