@@ -9,6 +9,7 @@
                 <page string="XLS Import">
                     <group>
                         <group>
+                            <field name="xls_id"/>
                             <field name="xls_name"/>
                             <field name="xls_categ_id"/>
                             <field name="xls_brand_id"/>

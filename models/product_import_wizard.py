@@ -4,6 +4,11 @@
 
 from odoo import models, fields, api
 
+from io import StringIO
+from csv import DictReader
+
+import csv
+
 import base64
 import xlrd
 
@@ -27,35 +32,49 @@ class XlsImport(models.TransientModel):
         if not self.xls_file:
             return False
 
-        if '.xls' in self.xls_filename or '.xlsx' in self.xls_filename:
+        lines = self.env['tnt.xls.import.lines']
+
+        if '.txt' in self.xls_filename:
+            file = base64.b64decode(self.xls_file)
+            data = StringIO(file.decode("utf-8"))
+            data.seek(0)
+            reader = csv.reader(data, delimiter='\t')
+            for i, cols in enumerate(reader):
+                if i:
+                    lines.create({
+                        'tnt_xls_import_id': self.id,
+                        'ref_id': cols[0],
+                        'name': cols[1],
+                        'categ_id': cols[8],
+                        'brand_id': cols[41],
+                        'catalog_auto_model': cols[48],
+                    })
+        elif '.xls' in self.bunning_filename or '.xlsx' in self.bunning_filename:
             book = xlrd.open_workbook(
                 file_contents=base64.decodebytes(self.xls_file)
             )
             sheet = book.sheet_by_index(0)
-            rows = []
-            for row in range(sheet.nrows):
+            for row in range(1, sheet.nrows):
                 cols = []
                 for col in range(sheet.ncols):
                     cols.append(sheet.cell(row, col).value)
-                rows.append(cols)
+                lines.create({
+                    'tnt_xls_import_id': self.id,
+                    'ref_id': cols[0],
+                    'name': cols[1],
+                    'categ_id': cols[8],
+                    'brand_id': cols[41],
+                    'catalog_auto_model': cols[48],
+                })
         else:
             raise ValueError("Wrong file extension.")
-
-        lines = self.env['tnt.xls.import.lines']
-        for row in rows[1:]:
-            lines.create({
-                'tnt_xls_import_id': self.id,
-                'name': row[1],
-                'categ_id': row[8],
-                'brand_id': row[32],
-                'catalog_auto_model': row[48],
-            })
 
     def xls_import_button(self):
         product_template = self.env['product.template'].sudo()
         for line in self.line_ids:
             product_template.create([{
                 'name': line.name,
+                'xls_id': line.ref_id,
                 'xls_name': line.name,
                 'xls_categ_id': line.categ_id,
                 'xls_brand_id': line.brand_id,
@@ -68,6 +87,7 @@ class XlsImportLines(models.TransientModel):
 
     tnt_xls_import_id = fields.Many2one('tnt.xls.import', 'XLS Import')
 
+    ref_id = fields.Char('id')
     name = fields.Char('name')
     categ_id = fields.Char('categ_id')
     brand_id = fields.Char('brand_id')

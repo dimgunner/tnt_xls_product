@@ -8,6 +8,7 @@ from odoo import models, fields
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
+    xls_id = fields.Char('id')
     xls_name = fields.Char('name')
     xls_categ_id = fields.Char('categ_id')
     xls_brand_id = fields.Char('brand_id')

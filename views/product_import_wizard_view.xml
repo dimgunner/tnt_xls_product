@@ -11,6 +11,7 @@
                 </group>
                 <field name="line_ids" nolabel="1">
                     <tree editable="top">
+                        <field name="ref_id"/>
                         <field name="name"/>
                         <field name="categ_id"/>
                         <field name="brand_id"/>
