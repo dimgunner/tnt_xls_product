@@ -12,6 +12,8 @@ import csv
 import base64
 import xlrd
 
+import logging
+_logger = logging.getLogger(__name__)
 
 class XlsImport(models.TransientModel):
     _name = "tnt.xls.import"
@@ -40,7 +42,8 @@ class XlsImport(models.TransientModel):
             data.seek(0)
             reader = csv.reader(data, delimiter='\t')
             for i, cols in enumerate(reader):
-                if i:
+                if not cols[0] == "id":
+                    _logger.info('import line: {}'.format(i))
                     lines.create({
                         'tnt_xls_import_id': self.id,
                         'ref_id': cols[0],
@@ -71,7 +74,8 @@ class XlsImport(models.TransientModel):
 
     def xls_import_button(self):
         product_template = self.env['product.template'].sudo()
-        for line in self.line_ids:
+        for i, line in enumerate(self.line_ids):
+            _logger.info('create line: {}'.format(i))
             product_template.create([{
                 'name': line.name,
                 'xls_id': line.ref_id,
